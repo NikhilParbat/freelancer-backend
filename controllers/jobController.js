@@ -1,7 +1,7 @@
 const Job = require("../models/Job");
 
 // Create a new job
-createJob = async (req, res) => {
+const createJob = async (req, res) => {
   try {
     const { title, description, price, postedBy } = req.body;
 
@@ -19,9 +19,12 @@ createJob = async (req, res) => {
 };
 
 // Get all jobs
-getAllJobs = async (req, res) => {
+const getAllJobs = async (req, res) => {
   try {
-    const jobs = await Job.find().populate("postedBy", "name email");
+    const jobs = await Job.find()
+      .populate("postedBy", "name email")
+      .populate("assignedTo", "name email");
+
     res.status(200).json(jobs);
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
@@ -29,12 +32,12 @@ getAllJobs = async (req, res) => {
 };
 
 // Get a single job by ID
-getJobById = async (req, res) => {
+const getJobById = async (req, res) => {
   try {
-    const job = await Job.findById(req.params.id).populate(
-      "postedBy",
-      "name email"
-    );
+    const job = await Job.findById(req.params.id)
+      .populate("postedBy", "name email")
+      .populate("assignedTo", "name email");
+
     if (!job) {
       return res.status(404).json({ message: "Job not found" });
     }
@@ -45,9 +48,9 @@ getJobById = async (req, res) => {
 };
 
 // Update a job
-updateJob = async (req, res) => {
+const updateJob = async (req, res) => {
   try {
-    const { title, description, price } = req.body;
+    const { title, description, price, status, assignedTo } = req.body;
 
     const job = await Job.findById(req.params.id);
     if (!job) {
@@ -57,6 +60,8 @@ updateJob = async (req, res) => {
     job.title = title || job.title;
     job.description = description || job.description;
     job.price = price || job.price;
+    job.status = status || job.status;
+    job.assignedTo = assignedTo || job.assignedTo;
 
     const updatedJob = await job.save();
     res.status(200).json(updatedJob);
@@ -65,8 +70,45 @@ updateJob = async (req, res) => {
   }
 };
 
+// Assign a job to a freelancer
+const assignJob = async (req, res) => {
+  try {
+    const { assignedTo } = req.body;
+
+    const job = await Job.findById(req.params.id);
+    if (!job) {
+      return res.status(404).json({ message: "Job not found" });
+    }
+
+    job.assignedTo = assignedTo;
+    job.status = "in-progress";
+
+    const updatedJob = await job.save();
+    res.status(200).json(updatedJob);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// Mark a job as completed
+const completeJob = async (req, res) => {
+  try {
+    const job = await Job.findById(req.params.id);
+    if (!job) {
+      return res.status(404).json({ message: "Job not found" });
+    }
+
+    job.status = "completed";
+    const updatedJob = await job.save();
+
+    res.status(200).json(updatedJob);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
 // Delete a job
-deleteJob = async (req, res) => {
+const deleteJob = async (req, res) => {
   try {
     const job = await Job.findById(req.params.id);
     if (!job) {
@@ -80,4 +122,12 @@ deleteJob = async (req, res) => {
   }
 };
 
-module.exports = { createJob, getAllJobs, getJobById, updateJob, deleteJob };
+module.exports = {
+  createJob,
+  getAllJobs,
+  getJobById,
+  updateJob,
+  assignJob,
+  completeJob,
+  deleteJob,
+};

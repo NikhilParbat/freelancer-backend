@@ -1,18 +1,27 @@
 const express = require("express");
-const Job = require("../models/Job");
+const {
+  createJob,
+  getAllJobs,
+  getJobById,
+  updateJob,
+  deleteJob,
+} = require("../controllers/jobController");
 
 const router = express.Router();
 
-router.post("/", async (req, res) => {
-  const { title, description, price, postedBy } = req.body;
-  const newJob = new Job({ title, description, price, postedBy });
-  await newJob.save();
-  res.status(201).json(newJob);
-});
+// Create a new job
+router.post("/", createJob);
 
-router.get("/", async (req, res) => {
-  const jobs = await Job.find().populate("postedBy", "name");
-  res.json(jobs);
-});
+// Get all jobs
+router.get("/", getAllJobs);
+
+// Get a single job by ID
+router.get("/:id", getJobById);
+
+// Update a job
+router.put("/:id", updateJob);
+
+// Delete a job
+router.delete("/:id", deleteJob);
 
 module.exports = router;
