@@ -16,11 +16,14 @@ const JobSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     }, // Client who posted the job
-    interestedUsers: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: false,
-    }, // Freelancers interested in project
+    interestedUsers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: false,
+      },
+    ],
+    // Freelancers interested in project
     assignedTo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

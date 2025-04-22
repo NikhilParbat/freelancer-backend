@@ -3,7 +3,8 @@ const Job = require("../models/Job");
 // Create a new job
 const createJob = async (req, res) => {
   try {
-    const { title, description, price, postedBy } = req.body;
+    const { title, description, price, paymentType, postedBy, status } =
+      req.body;
 
     if (!title || !description || !price || !postedBy) {
       return res.status(400).json({ message: "All fields are required" });
@@ -13,8 +14,11 @@ const createJob = async (req, res) => {
       title,
       description,
       price,
-      postedBy,
       paymentType,
+      postedBy,
+      interestedUsers: [],
+      assignedTo: null,
+      status,
     });
     await newJob.save();
 
