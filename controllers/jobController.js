@@ -133,18 +133,26 @@ const expressInterestInJob = async (req, res) => {
 // Assign a job to a freelancer
 const assignJob = async (req, res) => {
   try {
-    const { assignedTo } = req.body;
+    const { userId } = req.body;
 
     const job = await Job.findById(req.params.id);
     if (!job) {
       return res.status(404).json({ message: "Job not found" });
     }
 
-    job.assignedTo = assignedTo;
+    console.log("Before assignment:", job);
+
+    job.assignedTo = userId;
     job.status = "in-progress";
 
     const updatedJob = await job.save();
-    res.status(200).json(updatedJob);
+    const populatedJob = await Job.findById(updatedJob._id).populate(
+      "assignedTo"
+    );
+
+    console.log("After assignment:", populatedJob);
+
+    res.status(200).json(populatedJob);
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }

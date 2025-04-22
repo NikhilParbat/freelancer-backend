@@ -20,14 +20,12 @@ const JobSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        required: false,
       },
     ],
     // Freelancers interested in project
     assignedTo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: false,
     }, //Freelancer assigned for project
     status: {
       type: String,
