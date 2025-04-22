@@ -2,15 +2,23 @@ const express = require("express");
 const {
   createJob,
   getAllJobs,
+  getJobsByClient,
   getJobById,
   updateJob,
+  expressInterestInJob,
+  assignJob,
+  completeJob,
   deleteJob,
+  getInterestedUsers,
 } = require("../controllers/jobController");
 
 const router = express.Router();
 
 // Create a new job
 router.post("/", createJob);
+
+//Get jobs created by the client
+router.get("/jobs/client/:clientId", getJobsByClient);
 
 // Get all jobs
 router.get("/", getAllJobs);
@@ -25,7 +33,7 @@ router.put("/:id", updateJob);
 router.post("/job/:id/interest", expressInterestInJob);
 
 // Assign a job to a freelancer
-router.put("/job/:id/assign", jobController.assignJob);
+router.put("/job/:id/assign", assignJob);
 
 // Delete a job
 router.delete("/:id", deleteJob);

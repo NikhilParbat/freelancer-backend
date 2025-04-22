@@ -37,6 +37,23 @@ const getAllJobs = async (req, res) => {
   }
 };
 
+// Get jobs by a specific client
+const getJobsByClient = async (req, res) => {
+  try {
+    const clientId = req.params.clientId;
+
+    const jobs = await Job.find({ postedBy: clientId })
+      .populate("assignedTo", "name email")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json(jobs);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching jobs", error: error.message });
+  }
+};
+
 // Get a single job by ID
 const getJobById = async (req, res) => {
   try {
@@ -158,28 +175,29 @@ const deleteJob = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
+};
 
-  const getInterestedUsers = async (req, res) => {
-    try {
-      const job = await Job.findById(req.params.id).populate(
-        "interestedUsers",
-        "name email"
-      );
+const getInterestedUsers = async (req, res) => {
+  try {
+    const job = await Job.findById(req.params.id).populate(
+      "interestedUsers",
+      "name email"
+    );
 
-      if (!job) {
-        return res.status(404).json({ message: "Job not found" });
-      }
-
-      res.status(200).json({ interestedUsers: job.interestedUsers });
-    } catch (error) {
-      res.status(500).json({ message: "Server error", error: error.message });
+    if (!job) {
+      return res.status(404).json({ message: "Job not found" });
     }
-  };
+
+    res.status(200).json({ interestedUsers: job.interestedUsers });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
 };
 
 module.exports = {
   createJob,
   getAllJobs,
+  getJobsByClient,
   getJobById,
   updateJob,
   expressInterestInJob,
