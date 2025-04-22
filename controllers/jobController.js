@@ -98,13 +98,14 @@ const updateJob = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
 // Freelancer expresses interest in a job
 const expressInterestInJob = async (req, res) => {
   try {
     const jobId = req.params.id;
-    const freelancerId = req.body.freelancerId;
+    const userId = req.body.userId;
 
-    if (!freelancerId) {
+    if (!userId) {
       return res.status(400).json({ message: "Freelancer ID is required" });
     }
 
@@ -114,13 +115,13 @@ const expressInterestInJob = async (req, res) => {
     }
 
     // Prevent duplicates
-    if (job.interestedUsers.includes(freelancerId)) {
+    if (job.interestedUsers.includes(userId)) {
       return res
         .status(400)
         .json({ message: "Freelancer already expressed interest" });
     }
 
-    job.interestedUsers.push(freelancerId);
+    job.interestedUsers.push(userId);
     await job.save();
 
     res.status(200).json({ message: "Interest expressed successfully", job });
