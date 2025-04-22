@@ -15,10 +15,10 @@ const {
 const router = express.Router();
 
 // Create a new job
-router.post("/", createJob);
+router.post("/create", createJob);
 
 //Get jobs created by the client
-router.get("/jobs/client/:clientId", getJobsByClient);
+router.get("/client/:clientId", getJobsByClient);
 
 // Get all jobs
 router.get("/", getAllJobs);
@@ -30,15 +30,15 @@ router.get("/:id", getJobById);
 router.put("/:id", updateJob);
 
 // Add interested freelancers
-router.post("/job/:id/interest", expressInterestInJob);
+router.post("/:id/interest", expressInterestInJob);
 
 // Assign a job to a freelancer
-router.put("/job/:id/assign", assignJob);
+router.put("/:id/assign", assignJob);
 
 // Delete a job
 router.delete("/:id", deleteJob);
 
 //Show interested users
-router.get("/job/:id/interested-users", getInterestedUsers);
+router.get("/:id/interested-users", getInterestedUsers);
 
 module.exports = router;
