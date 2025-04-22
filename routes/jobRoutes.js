@@ -21,7 +21,16 @@ router.get("/:id", getJobById);
 // Update a job
 router.put("/:id", updateJob);
 
+// Add interested freelancers
+router.post("/job/:id/interest", expressInterestInJob);
+
+// Assign a job to a freelancer
+router.put("/job/:id/assign", jobController.assignJob);
+
 // Delete a job
 router.delete("/:id", deleteJob);
+
+//Show interested users
+router.get("/job/:id/interested-users", getInterestedUsers);
 
 module.exports = router;

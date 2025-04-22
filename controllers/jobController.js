@@ -9,7 +9,13 @@ const createJob = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    const newJob = new Job({ title, description, price, postedBy });
+    const newJob = new Job({
+      title,
+      description,
+      price,
+      postedBy,
+      paymentType,
+    });
     await newJob.save();
 
     res.status(201).json(newJob);
@@ -50,7 +56,8 @@ const getJobById = async (req, res) => {
 // Update a job
 const updateJob = async (req, res) => {
   try {
-    const { title, description, price, status, assignedTo } = req.body;
+    const { title, description, price, status, assignedTo, paymentType } =
+      req.body;
 
     const job = await Job.findById(req.params.id);
     if (!job) {
@@ -62,9 +69,40 @@ const updateJob = async (req, res) => {
     job.price = price || job.price;
     job.status = status || job.status;
     job.assignedTo = assignedTo || job.assignedTo;
+    job.paymentType = paymentType || job.paymentType;
 
     const updatedJob = await job.save();
     res.status(200).json(updatedJob);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+// Freelancer expresses interest in a job
+const expressInterestInJob = async (req, res) => {
+  try {
+    const jobId = req.params.id;
+    const freelancerId = req.body.freelancerId;
+
+    if (!freelancerId) {
+      return res.status(400).json({ message: "Freelancer ID is required" });
+    }
+
+    const job = await Job.findById(jobId);
+    if (!job) {
+      return res.status(404).json({ message: "Job not found" });
+    }
+
+    // Prevent duplicates
+    if (job.interestedUsers.includes(freelancerId)) {
+      return res
+        .status(400)
+        .json({ message: "Freelancer already expressed interest" });
+    }
+
+    job.interestedUsers.push(freelancerId);
+    await job.save();
+
+    res.status(200).json({ message: "Interest expressed successfully", job });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
@@ -120,6 +158,23 @@ const deleteJob = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
+
+  const getInterestedUsers = async (req, res) => {
+    try {
+      const job = await Job.findById(req.params.id).populate(
+        "interestedUsers",
+        "name email"
+      );
+
+      if (!job) {
+        return res.status(404).json({ message: "Job not found" });
+      }
+
+      res.status(200).json({ interestedUsers: job.interestedUsers });
+    } catch (error) {
+      res.status(500).json({ message: "Server error", error: error.message });
+    }
+  };
 };
 
 module.exports = {
@@ -127,7 +182,9 @@ module.exports = {
   getAllJobs,
   getJobById,
   updateJob,
+  expressInterestInJob,
   assignJob,
   completeJob,
   deleteJob,
+  getInterestedUsers,
 };
