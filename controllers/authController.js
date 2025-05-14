@@ -25,12 +25,10 @@ createUser = async (req, res) => {
 
     // Validate password length
     if (password.length < 8) {
-      return res
-        .status(400)
-        .json({
-          status: false,
-          message: "Password must be at least 8 characters long",
-        });
+      return res.status(400).json({
+        status: false,
+        message: "Password must be at least 8 characters long",
+      });
     }
 
     // Check if email already exists
@@ -43,12 +41,10 @@ createUser = async (req, res) => {
 
     // Validate role
     if (!["freelancer", "client"].includes(role)) {
-      return res
-        .status(400)
-        .json({
-          status: false,
-          message: "Role must be either 'freelancer' or 'client'",
-        });
+      return res.status(400).json({
+        status: false,
+        message: "Role must be either 'freelancer' or 'client'",
+      });
     }
 
     // Encrypt password
@@ -118,4 +114,57 @@ loginUser = async (req, res) => {
   }
 };
 
-module.exports = { createUser, loginUser };
+const getFreelancerProfile = async (req, res) => {
+  try {
+    const userId = req.params.id; // This comes from JWT middleware
+
+    const user = await User.findById(userId).select("-password -__v");
+
+    if (!user) {
+      return res.status(404).json({ status: false, message: "User not found" });
+    }
+
+    if (user.role !== "freelancer") {
+      return res
+        .status(403)
+        .json({ status: false, message: "Access denied. Not a freelancer." });
+    }
+
+    res.status(200).json({ status: true, profile: user });
+  } catch (error) {
+    console.error("Error fetching freelancer profile:", error);
+    res.status(500).json({ status: false, message: error.message });
+  }
+};
+
+const getClientProfile = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const user = await User.findById(userId)
+      .select("-password -__v")
+      .populate("postedJobs"); // optional: populate job data
+
+    if (!user) {
+      return res.status(404).json({ status: false, message: "User not found" });
+    }
+
+    if (user.role !== "client") {
+      return res
+        .status(403)
+        .json({ status: false, message: "Access denied. Not a client." });
+    }
+
+    res.status(200).json({ status: true, profile: user });
+  } catch (error) {
+    console.error("Error fetching client profile:", error);
+    res.status(500).json({ status: false, message: error.message });
+  }
+};
+
+module.exports = {
+  createUser,
+  loginUser,
+  getFreelancerProfile,
+  getClientProfile,
+};

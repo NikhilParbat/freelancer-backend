@@ -4,7 +4,8 @@ const JobSchema = new mongoose.Schema(
   {
     title: { type: String, required: true, trim: true },
     description: { type: String, required: true },
-    price: { type: Number, required: true }, // Fixed price for the job
+    price: { type: Number, required: true },
+    domain: { type: String, required: true },
     paymentType: {
       type: String,
       enum: ["one-time", "monthly-installments", "two-stage"],

@@ -11,6 +11,8 @@ const UserSchema = new mongoose.Schema(
     balance: { type: Number, default: 0 },
     hourlyRate: { type: Number }, // Only for freelancers
     postedJobs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Job" }], // Only for clients
+    VerificationDocument: { type: String },
+    Verification: { type: Boolean },
     createdAt: { type: Date, default: Date.now },
   },
   { timestamps: true }
